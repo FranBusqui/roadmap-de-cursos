@@ -1,0 +1,130 @@
+# =============================================================================
+# Roadmap de Cursos — .gitignore
+# Stack: React 19 + Vite + pnpm · FastAPI + uv · PostgreSQL · Docker Compose
+# =============================================================================
+# IMPORTANTE — estos archivos SÍ se versionan (no los agregues acá):
+#   pnpm-lock.yaml, uv.lock, .python-version, .env.example, .nvmrc
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Secretos y variables de entorno
+# -----------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# -----------------------------------------------------------------------------
+# Node / pnpm / Vite (frontend)
+# -----------------------------------------------------------------------------
+node_modules/
+.pnpm-store/
+.pnpm-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+frontend/dist/
+frontend/dist-ssr/
+frontend/.vite/
+*.local
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+
+# Tests y cobertura del frontend (Vitest / Playwright)
+frontend/coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# -----------------------------------------------------------------------------
+# Python / uv (backend)
+# -----------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+.python-version.local
+backend/build/
+backend/dist/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyre/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+.uv-cache/
+
+# -----------------------------------------------------------------------------
+# Base de datos y volúmenes locales
+# -----------------------------------------------------------------------------
+pgdata/
+postgres-data/
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+
+# -----------------------------------------------------------------------------
+# Docker / Compose
+# -----------------------------------------------------------------------------
+docker-compose.override.yml
+compose.override.yml
+.docker/
+
+# -----------------------------------------------------------------------------
+# Logs y temporales
+# -----------------------------------------------------------------------------
+logs/
+*.log
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+
+# -----------------------------------------------------------------------------
+# Editores / IDEs
+# -----------------------------------------------------------------------------
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+*.code-workspace
+.fleet/
+
+# -----------------------------------------------------------------------------
+# Sistema operativo
+# -----------------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+.Trash-*
+.nfs*
