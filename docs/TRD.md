@@ -47,7 +47,7 @@
 | TD-010 | Estilos | CSS Modules + tokens · Tailwind · MUI (Material UI) | **CSS Modules + custom properties** | La SPEC pide mobile-first *auditable*: con CSS propio se verifica con un `grep` que la base no tiene media queries (§5). MUI traería Material "de fábrica" pero con peso, theming a medida y estilos que habría que pelear para respetar los tokens exactos de la UX-UI. Tailwind es mobile-first, pero la guía visual está definida como variables CSS, no como utilidades. |
 | TD-011 | Identificadores | enteros `IDENTITY` · UUID | **Enteros `GENERATED ALWAYS AS IDENTITY`** | URLs legibles (`/catalogo/42`) y joins livianos. Que sean enumerables no filtra datos: la visibilidad se decide por estado y rol (BR-016), no por opacidad del ID. |
 | TD-012 | Organización del código | capas técnicas (`routers/`, `services/`, `models/`) · feature-first con capas dentro (Screaming) | **Screaming Architecture + capas por dominio** | Exigido por la SPEC; justificación en §3.1. |
-| TD-013 | Flujo de versionado | GitHub Flow · trunk-based · GitFlow | **GitHub Flow + Conventional Commits** | Un solo desarrollador, `main` siempre desplegable y ramas cortas por tarea del plan. Detalle en §4. |
+| TD-013 | Flujo de versionado | GitHub Flow · trunk-based · GitFlow · `main`/`dev`/ramas de trabajo | **`main` / `dev` / `feat/*` y `fix/*` + Conventional Commits + SemVer** | Lo fija como obligatorio el ticket pre-clase del docente (reemplaza a GitHub Flow, elegido en la Instancia A): `main` solo guarda releases taggeados y `dev` integra el trabajo. Detalle en §4.1; registro del cambio en [SPEC §9](SPEC.md#9-historia-de-la-spec-autoregistro-de-cambios). |
 
 ### 2.1 Paginación: offset + total vs. cursor
 
@@ -188,7 +188,7 @@ flowchart LR
 **Por qué Screaming Architecture (justificación técnica):**
 
 1. **El dominio es visible.** Abrir `backend/app/` muestra `identidad/ catalogo/ aportes/ roadmap/`: se entiende para qué es el sistema antes de leer código. Una estructura por capas técnicas (`routers/ services/ models/`) solo diría "es una app FastAPI".
-2. **Cohesión alta, acoplamiento bajo.** Una historia de usuario toca casi siempre un solo dominio, así que un cambio vive en una carpeta y en una rama (GitHub Flow, §4). En capas técnicas, cada cambio atravesaría tres o cuatro carpetas.
+2. **Cohesión alta, acoplamiento bajo.** Una historia de usuario toca casi siempre un solo dominio, así que un cambio vive en una carpeta y en una rama de trabajo (§4.1). En capas técnicas, cada cambio atravesaría tres o cuatro carpetas.
 3. **Trazabilidad 1:1 con los documentos.** Dominio ↔ módulo del plan ↔ historias del PRD (tabla abajo): un revisor puede seguir una regla de negocio desde el PRD hasta el archivo que la implementa.
 4. **Límites explícitos y verificables.** Las reglas de dependencia entre dominios (más abajo) se pueden revisar con un `grep` de imports, y mantienen la puerta abierta a extraer un dominio si algún día hiciera falta.
 5. **Espejo en el frontend.** `features/<dominio>` evita carpetas globales `components/` y `pages/` que acumulan todo.
@@ -306,8 +306,7 @@ roadmap-de-cursos/
 ├── docker-compose.yml
 ├── .env.example
 ├── .gitignore
-├── .github/
-│   └── pull_request_template.md
+├── CHANGELOG.md                         # Keep a Changelog: una entrada por release (§4.1)
 └── docs/                                # SPEC, PRD, TRD, UX-UI, APPFlow, BackendSchema, IMPLEMENTATION_PLAN
 ```
 
@@ -367,28 +366,63 @@ volumes:
 ```
 
 > En la clase del 27/10 estos Dockerfiles evolucionan a multi-stage. Por ahora, lo mínimo que levanta.
+> **Orden real de construcción:** el ticket pre-clase T4 pide un compose de 3 servicios (`postgres`, `backend`,
+> `frontend`) **sin healthchecks**. Mailpit se suma con la recuperación de contraseña (tarea 1.4 del plan) y los
+> healthchecks con `condition: service_healthy`, en el ticket de clase T10. El esqueleto de arriba es el estado final.
 
 ## 4. Convenciones
 
-### 4.1 Flujo de Git: GitHub Flow
+### 4.1 Flujo de Git: main / dev / ramas de trabajo
 
-- **Rama permanente:** solo `main`, protegida (sin push directo, PR obligatorio, historial lineal). **`main` siempre levanta con `docker compose up`.**
-- **Ramas de trabajo:** cortas, creadas desde `main`, una por tarea (o lote coherente) del Implementation Plan.
-  Formato: `<tipo>/<tarea>-<slug>`, con `<tipo>` ∈ `feat | fix | docs | test | refactor | chore | docker` y `<tarea>` el número del plan.
-  Ejemplos: `feat/1.2-login-rate-limit`, `feat/2.3-pantalla-catalogo`, `docker/0.2-compose-postgres`, `docs/prd-reglas-de-negocio`.
-- **Pull Request:** título en formato Conventional Commit; descripción con la plantilla `.github/pull_request_template.md`
-  (tarea del plan y historia US-xxx, "hecho cuando…" tildado, cómo probarlo, checklist: sin secretos, docs actualizadas, `docker compose up` verificado).
-- **Quién revisa:** el desarrollo es individual, por lo que la revisión previa al merge es una **autorrevisión con checklist** y la revisión docente se hace sobre el PR/tag de entrega. Los checks automáticos (lint y tests en CI) se agregan en la clase del 27/10.
-- **Merge:** **squash merge** (un commit por PR en `main`, con el título del PR); la rama se borra al mergear. **Excepción:** el PR de la Instancia A (`docs/instancia-a-documentacion`) se mergea con *merge commit*, no con squash, para conservar en `main` un commit por documento. Cada merge actualiza la tabla de ejecución del plan (§4 del Implementation Plan).
-- **Hotfix:** mismo flujo (rama `fix/…` desde `main`); no hay ramas de release.
-- **Releases:** tag anotado `v0.1.0-mvp` al cerrar la Instancia B (SemVer; `0.x` mientras el producto sea pre-1.0).
+> **Cambio respecto de la Instancia A:** la documentación se entregó con GitHub Flow (solo `main` y PR con squash).
+> El ticket pre-clase del docente fija como **obligatorio** este flujo para todos los tickets, así que lo reemplaza
+> desde la Instancia B. La documentación de la Instancia A ya está en `main` (merge `2091194`) y no se reescribe.
+> El cambio está registrado en [SPEC §9](SPEC.md#9-historia-de-la-spec-autoregistro-de-cambios).
+
+```mermaid
+gitGraph
+    commit id: "docs Instancia A"
+    branch dev
+    checkout dev
+    branch feat/T1-scaffold-estructura
+    commit id: "chore: scaffold"
+    checkout dev
+    merge feat/T1-scaffold-estructura
+    branch feat/T2-backend-minimo
+    commit id: "feat: backend"
+    checkout dev
+    merge feat/T2-backend-minimo
+    commit id: "docs: changelog"
+    checkout main
+    merge dev tag: "v0.1.0"
+```
+
+| Rama | Nace de | Contiene | Se mergea a |
+|------|---------|----------|-------------|
+| `main` | — (raíz) | solo releases taggeados `vX.Y.Z` con el `CHANGELOG.md` actualizado | — |
+| `dev` | `main` | integración: todo lo que entra al próximo release | `main` (en el release) |
+| `feat/T{N}-descripcion-corta` | `dev` | una feature o un ticket | `dev` |
+| `fix/descripcion-corta` | `dev` | un fix | `dev` |
+
+- **`main` no recibe commits directos** ni merges de `feat/*` o `fix/*`: solo recibe `dev` en el momento exacto de un release, siempre con tag. Si algo se commitea por error en `main`, se revierte y se rehace desde `dev`.
+- **Naming de `{N}`:** el número del ticket del docente (`feat/T2-backend-minimo`) o, para las tareas del plan que no vienen de un ticket, el número de tarea (`feat/T2.3-api-catalogo`). El tipo de cambio (docker, docs, test…) lo dice el commit, no la rama.
+- **Merge a `dev`:** local, con `git merge --no-ff <rama>`. El commit de merge deja visible cada rama en el historial y así el flujo es auditable. Siempre lleva un mensaje convencional, `git merge --no-ff <rama> -m "chore: Mergeo <rama> en dev"`, porque el mensaje por defecto ("Merge branch…") rompe el 100 % de Conventional Commits. El merge del release sigue el mismo formato: `chore: Mergeo dev en main para vX.Y.Z`. Antes de mergear hago una **autorrevisión**: el "hecho cuando…" de la tarea se cumple, no hay secretos, la documentación está al día y `docker compose up` levanta. La rama se borra después del merge (local y remota). Los checks automáticos (lint y tests en CI) se agregan en la clase del 27/10.
+- **Release:**
+  1. En `dev`, se mueve `[Unreleased]` del `CHANGELOG.md` a `[vX.Y.Z] - AAAA-MM-DD` (fecha real del release) con el commit `docs: finalize changelog for vX.Y.Z`.
+  2. `git checkout main && git merge --no-ff dev`.
+  3. `git tag -a vX.Y.Z -m "release: …"` y `git push origin main --tags`.
+  4. Cada release actualiza la tabla de ejecución del plan (§4 del Implementation Plan).
+- **Versionado semántico** (`0.y.z` mientras el producto sea inestable): MINOR (`v0.X.0`) para features compatibles, PATCH (`v0.y.Z`) para fixes sin features, MAJOR para cambios incompatibles (ej. romper el contrato de la API). `v0.1.0` es el scaffold mínimo; los módulos del plan salen como MINOR siguientes.
 - **Historia de la documentación:** el primer commit del repo es la SPEC de clase tal cual; cada documento posterior entra con commits `docs:` (regla de la consigna).
 
-**Alternativas descartadas:** *GitFlow* (ramas `develop`/`release`/`hotfix` agregan ceremonia sin beneficio para un solo desarrollador y entregas continuas) y *trunk-based* puro (commits directos a `main`: pierde el PR como punto de revisión y de trazabilidad con el plan).
+**Alternativas descartadas:** *GitHub Flow*, que fue el elegido en la Instancia A y quedó reemplazado por el requisito del docente. *GitFlow completo*, porque las ramas `release/*` y `hotfix/*` agregan ceremonia sin beneficio para un solo desarrollador (los fixes entran por `fix/*` → `dev` → release PATCH). *Trunk-based*, porque commitear directo a `main` contradice la regla de que `main` solo guarda releases.
 
 ### 4.2 Conventional Commits
 
-Formato: `<tipo>(<alcance>): <descripción en imperativo, ≤ 72 caracteres>` — cuerpo opcional y *footer* `Refs: US-xxx, RF-xxx`.
+Formato: `<tipo>(<alcance>): <descripción, ≤ 72 caracteres>` — cuerpo opcional y *footer* `Refs: US-xxx, RF-xxx`.
+
+- **Idioma:** el tipo y el alcance van como define la tabla (`feat`, `docs`, `identidad`…). La descripción y el cuerpo van en **español**, en primera persona del presente y con mayúscula inicial ("Agrego…", "Cambio…", "Corrijo…"), igual que el historial de la Instancia A.
+- **Un commit = un cambio coherente:** preferentemente un archivo o un grupo de archivos que cambian juntos. No se mezclan cambios no relacionados en un mismo commit.
 
 | Tipo | Uso |
 |------|-----|
@@ -403,10 +437,11 @@ Formato: `<tipo>(<alcance>): <descripción en imperativo, ≤ 72 caracteres>` �
 - **Alcance (opcional):** el dominio — `identidad`, `categorias`, `catalogo`, `aportes`, `roadmap` — o `ui`, `infra`, `docs`.
 - **Cambios incompatibles:** `!` después del alcance (`feat(catalogo)!: …`) y footer `BREAKING CHANGE:`.
 - **Ejemplos:**
-  - `feat(identidad): limitar intentos de login por email e IP` + `Refs: US-005, RF-003`
-  - `fix(aportes): normalizar URL antes de detectar duplicados`
-  - `docs(prd): agregar matriz de trazabilidad`
-  - `docker: agregar mailpit al compose de desarrollo`
+  - `feat(identidad): Limito los intentos de login por email e IP` + `Refs: US-005, RF-003`
+  - `fix(aportes): Normalizo la URL antes de detectar duplicados`
+  - `docs(prd): Agrego la matriz de trazabilidad`
+  - `docker: Agrego mailpit al compose de desarrollo`
+  - `chore: Mergeo feat/T2-backend-minimo en dev`
 
 ### 4.3 Errores de API
 
@@ -477,4 +512,5 @@ Formato elegido y catálogo de códigos: **§2.2**. Ejemplo mínimo:
   https://www.industrialempathy.com/posts/design-docs-at-google/
 - OWASP — Password Storage Cheat Sheet (argon2id): https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
 - Conventional Commits 1.0.0: https://www.conventionalcommits.org/
-- GitHub Flow: https://docs.github.com/en/get-started/using-github/github-flow
+- Keep a Changelog 1.1.0: https://keepachangelog.com/es-ES/1.1.0/
+- Semantic Versioning 2.0.0: https://semver.org/lang/es/
