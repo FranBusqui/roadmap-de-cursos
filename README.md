@@ -9,14 +9,29 @@
 
 ## Cómo levantar
 
-> Se completa en el ticket T4 (Docker Compose de desarrollo). Requisitos: Git y Docker con Docker Compose.
+**Requisitos:** Git y Docker con Docker Compose. Los puertos 5173, 8000 y 5432 tienen que estar libres.
 
 ```bash
 git clone https://github.com/FranBusqui/roadmap-de-cursos.git
 cd roadmap-de-cursos
 cp .env.example .env
 docker compose up
+# → frontend: http://localhost:5173
+# → backend:  http://localhost:8000/health
 ```
+
+**Cómo verificar que levantó bien** (en otra terminal):
+
+```bash
+curl http://localhost:8000/health            # {"status":"ok"}
+curl http://localhost:5173/api/v1/cursos     # {"items":[],"total":0,"page":1,"page_size":12} (pasa por el proxy de Vite)
+```
+
+En el navegador, http://localhost:5173 muestra el catálogo; mientras no haya cursos, el mensaje "Todavía no hay cursos en el catálogo".
+
+- **Servicios:** `postgres` (PostgreSQL 18.6, datos en el volumen `pgdata`), `backend` (FastAPI con recarga automática) y `frontend` (Vite). El código de `backend/` y `frontend/` se monta en los contenedores.
+- **Si cambian las dependencias** (`uv.lock` o `pnpm-lock.yaml`): `docker compose up --build -V` (`-V` recrea el volumen de `node_modules`).
+- **Apagar:** `docker compose down`. Para borrar también los datos de la base: `docker compose down -v`.
 
 ---
 
