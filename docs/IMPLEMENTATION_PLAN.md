@@ -268,18 +268,20 @@ Se ejecutan **después de la tarea 5.4** (MVP verificado) y antes de 5.6. Cada t
 
 | Ticket | Qué entrega | Tareas del plan | Estado | Rama / Commit |
 |--------|-------------|-----------------|--------|---------------|
-| Pre-clase T1 | workflow `main`/`dev`, CHANGELOG, estructura de carpetas y `.env.example` | 0.1 (sin el registro de versiones, que va en T5) | [ ] | `feat/T1-scaffold-estructura` |
-| Pre-clase T2 | FastAPI + uv con `GET /health` y `GET /api/v1/cursos` (página vacía) | 0.3 (parcial: falta el envelope de errores, el logging y `db` en `/health`) | [ ] | `feat/T2-backend-minimo` |
-| Pre-clase T3 | React + Vite + pnpm: pantalla de cursos con estados loading/error/vacío y proxy `/api` | 0.4 (parcial: falta el shell, los tokens y el menú sándwich) | [ ] | `feat/T3-frontend-minimo` |
-| Pre-clase T4 | compose de 3 servicios (sin Mailpit ni healthchecks) y Dockerfiles simples | 0.2 (Mailpit pasa a la tarea 1.4) | [ ] | `feat/T4-docker-compose-dev` |
-| Pre-clase T5 | release `v0.1.0` en `main` + versiones exactas en SPEC §6 y TRD §1 | 0.1 (registro de versiones) | [ ] | release sobre `main` |
+| Pre-clase T1 | workflow `main`/`dev`, CHANGELOG, estructura de carpetas y `.env.example` | 0.1 (sin el registro de versiones, que va en T5) | [x] | `feat/T1-scaffold-estructura` · merge `ca4362f` |
+| Pre-clase T2 | FastAPI + uv con `GET /health` y `GET /api/v1/cursos` (página vacía) | 0.3 (parcial: falta el envelope de errores, el logging y `db` en `/health`) | [x] | `feat/T2-backend-minimo` · merge `24b7086` |
+| Pre-clase T3 | React + Vite + pnpm: pantalla de cursos con estados loading/error/vacío y proxy `/api` | 0.4 (parcial: falta el shell, los tokens y el menú sándwich) | [x] | `feat/T3-frontend-minimo` · merge `fd80aa2` |
+| Pre-clase T4 | compose de 3 servicios (sin Mailpit ni healthchecks) y Dockerfiles simples | 0.2 (Mailpit pasa a la tarea 1.4) | [x] | `feat/T4-docker-compose-dev` · merge `544602e` |
+| Pre-clase T5 | release `v0.1.0` en `main` + versiones exactas en SPEC §6 y TRD §1 | 0.1 (registro de versiones) | [x] | release sobre `main` · tag `v0.1.0` |
+
+> Con T1–T5, las tareas **0.1** y **0.2** quedan completas (salvo Mailpit, movido a 1.4). Las tareas **0.3** y **0.4** quedan parciales y siguen en la tabla 4.2 con su rama.
 
 ### 4.2 Tareas del plan
 
 | # | Tarea | Módulo | Prio | Estado | Rama / Commit |
 |---|-------|--------|------|--------|---------------|
-| 0.1 | Estructura de carpetas, `.env.example`, `dev` + CHANGELOG y versiones | M0 | P0 | [ ] | `feat/T0.1-estructura-carpetas` |
-| 0.2 | docker-compose con postgres 18.6 y mailpit | M0 | P0 | [ ] | `feat/T0.2-compose-postgres-mailpit` |
+| 0.1 | Estructura de carpetas, `.env.example`, `dev` + CHANGELOG y versiones | M0 | P0 | [x] | cubierta por pre-clase T1 y T5 (§4.1) |
+| 0.2 | docker-compose con postgres 18.6 y mailpit | M0 | P0 | [x] | cubierta por pre-clase T4 (§4.1); Mailpit pasa a 1.4 |
 | 0.3 | Backend mínimo: errores, logging y `/health` | M0 | P0 | [ ] | `feat/T0.3-backend-health` |
 | 0.4 | Frontend: shell, rutas, tokens y menú sándwich | M0 | P0 | [ ] | `feat/T0.4-frontend-shell` |
 | 0.5 | Alembic + migración `unaccent` + arranque integrado | M0 | P0 | [ ] | `feat/T0.5-alembic-unaccent` |
