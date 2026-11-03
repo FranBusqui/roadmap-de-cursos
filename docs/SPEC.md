@@ -98,16 +98,17 @@ validación humana y la experiencia declarada de quienes ya tomaron cada curso.
 
 | Capa | Tecnología | Versión exacta | Cómo se verifica / registra |
 |------|------------|----------------|-----------------------------|
-| Frontend | React + Vite + pnpm | React **19.x** (última stable de la serie 19 al instalar; queda congelada en `pnpm-lock.yaml`) · Vite y pnpm: última stable al instalar | `pnpm -v`, `pnpm ls react vite` |
-| Backend | FastAPI + uv | FastAPI **0.158.2** (referencia de la SPEC oficial al 21/10/2026) · Python 3.13 gestionado por uv · uv: última stable | `uv --version`, `uv pip show fastapi` |
+| Frontend | React + Vite + pnpm | React **19.3.1** · Vite **8.3.5** · pnpm **12.16.1** (fijado en `packageManager` de `package.json`; resto en `pnpm-lock.yaml`) · lint: oxlint **1.90.0** | `pnpm -v`, `pnpm ls react vite` |
+| Backend | FastAPI + uv | FastAPI **0.158.2** (referencia de la SPEC oficial al 21/10/2026) · uvicorn **0.54.0** · Pydantic **2.14.2** · Python **3.13.18** gestionado por uv · uv **0.13.6** | `uv --version`, `uv pip show fastapi` |
 | Base de datos | PostgreSQL | **18.6** | `SELECT version();` |
-| Infra (dev) | Docker + Docker Compose | última stable al instalar | `docker --version`, `docker compose version` |
-| Runtime del frontend en contenedor | Node.js | **24 LTS** (Node 20 ya no recibe soporte desde abril de 2026) | `node -v` |
+| Infra (dev) | Docker + Docker Compose | Docker **29.9.2** · Docker Compose **5.6.1** | `docker --version`, `docker compose version` |
+| Runtime del frontend en contenedor | Node.js | **24 LTS** — imagen `node:24-alpine` (**24.22.2** al 03/11/2026; 24.12.0 en la máquina de desarrollo). Node 20 ya no recibe soporte desde abril de 2026 | `node -v` |
 | Correo (dev) | Mailpit | última stable, tag fijado en `docker-compose.yml` | imagen `axllent/mailpit:<tag>` |
 
-> **Nota de registro:** las versiones con "última stable al instalar" se escriben acá, con número exacto,
-> en la tarea 0.1 del [Implementation Plan](IMPLEMENTATION_PLAN.md) (durante la Instancia B), y se respaldan con
-> los lockfiles (`pnpm-lock.yaml`, `uv.lock`). Este documento se actualiza con lo que **realmente** se instaló.
+> **Nota de registro:** las versiones de arriba son las **realmente instaladas**, registradas el 03/11/2026 en el
+> release `v0.1.0` (ticket pre-clase T5, tarea 0.1 del [Implementation Plan](IMPLEMENTATION_PLAN.md)), y se respaldan
+> con los lockfiles (`pnpm-lock.yaml`, `uv.lock`). Las dependencias que se suman más adelante (SQLAlchemy, Alembic,
+> React Router, etc.) quedan fijadas en los lockfiles al instalarse.
 > Mailpit no altera el stack fijado por la SPEC: es una herramienta de desarrollo para poder recibir
 > localmente el correo de recuperación de contraseña.
 
@@ -163,3 +164,4 @@ validación humana y la experiencia declarada de quienes ya tomaron cada curso.
 | 23/10/2026 | Se fija argon2id en lugar de bcrypt como algoritmo de hash | supera el mínimo exigido; justificación en TRD §2 |
 | 02/11/2026 | Inicio de la Instancia B. La Instancia A, enviada el 23/10, no recibió devolución; el docente envió los tickets de desarrollo, que se toman como habilitación para avanzar | los tickets pre-clase y de clase presuponen el desarrollo en curso |
 | 02/11/2026 | El flujo de Git pasa de GitHub Flow a `main` / `dev` / `feat/T{N}-…` con CHANGELOG y SemVer; el scaffold sale como `v0.1.0` | el ticket pre-clase lo fija como obligatorio; TRD TD-013 y §4.1 |
+| 03/11/2026 | §6 registra las versiones exactas instaladas; oxlint (que trae la plantilla actual de Vite) es el linter del frontend | release `v0.1.0` (ticket pre-clase T5) |
