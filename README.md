@@ -3,9 +3,35 @@
 > WebApp de gestión de comunidad de cursos: catálogo comunitario de cursos gratuitos
 > de cualquier plataforma + roadmaps personales de aprendizaje.
 >
-> **Estado:** Documentación (Instancia A) — desarrollo pendiente de aprobación docente.
+> **Estado:** Instancia B en curso — scaffold mínimo (tickets pre-clase T1–T5). Ver [CHANGELOG](CHANGELOG.md).
 
 **Stack:** React 19 + Vite + pnpm · FastAPI + uv · PostgreSQL 18.6 · Docker Compose (dev)
+
+## Cómo levantar
+
+**Requisitos:** Git y Docker con Docker Compose. Los puertos 5173, 8000 y 5432 tienen que estar libres.
+
+```bash
+git clone https://github.com/FranBusqui/roadmap-de-cursos.git
+cd roadmap-de-cursos
+cp .env.example .env
+docker compose up
+# → frontend: http://localhost:5173
+# → backend:  http://localhost:8000/health
+```
+
+**Cómo verificar que levantó bien** (en otra terminal):
+
+```bash
+curl http://localhost:8000/health            # {"status":"ok"}
+curl http://localhost:5173/api/v1/cursos     # {"items":[],"total":0,"page":1,"page_size":12} (pasa por el proxy de Vite)
+```
+
+En el navegador, http://localhost:5173 muestra el catálogo; mientras no haya cursos, el mensaje "Todavía no hay cursos en el catálogo".
+
+- **Servicios:** `postgres` (PostgreSQL 18.6, datos en el volumen `pgdata`), `backend` (FastAPI con recarga automática) y `frontend` (Vite). El código de `backend/` y `frontend/` se monta en los contenedores.
+- **Si cambian las dependencias** (`uv.lock` o `pnpm-lock.yaml`): `docker compose up --build -V` (`-V` recrea el volumen de `node_modules`).
+- **Apagar:** `docker compose down`. Para borrar también los datos de la base: `docker compose down -v`.
 
 ---
 
@@ -43,36 +69,23 @@ y marca su progreso (pendiente · en curso · completado).
 - Preview local: VS Code con `Ctrl+Shift+V` (extensión "Markdown All in One" recomendada).
 - Orden de lectura sugerido: SPEC → PRD → UX-UI → APPFlow → BackendSchema → TRD → Implementation Plan.
 
-## Cómo levantar el proyecto (disponible al cerrar el módulo M0 del plan)
-
-```bash
-git clone <url-del-repo> && cd <repo>
-cp .env.example .env          # completar los secretos de desarrollo
-docker compose up --build     # postgres + backend (:8000) + frontend (:5173) + mailpit (:8025)
-```
-
-- App: http://localhost:5173 · Documentación interactiva de la API: http://localhost:8000/docs
-- Bandeja de correos de desarrollo (enlaces de recuperación de contraseña): http://localhost:8025
-
 ## Estado del trabajo
 
 | Instancia | Contenido | Estado |
 |-----------|-----------|--------|
-| A — Documentación | repo + 7 documentos | Enviada a aprobación el 23/10/2026 |
-| B — Desarrollo del MVP | ejecución del Implementation Plan | Pendiente de aprobación |
-| C — Clase 27/10 | testing, Docker multi-stage, gestión del cambio | Pendiente |
+| A — Documentación | repo + 7 documentos | Enviada el 23/10/2026. No se recibió devolución; el docente envió los tickets de desarrollo, que se toman como habilitación para avanzar. |
+| B — Desarrollo del MVP | scaffold (tickets pre-clase T1–T5) → módulos P0 del Implementation Plan | En curso |
+| C — Clase 27/10 | testing, Docker multi-stage, gestión del cambio (tickets de clase T1–T11) | Pendiente |
 
 ## Versionado
 
-- **Flujo de Git: GitHub Flow.** `main` está protegida y **siempre debe levantar** con
-  `docker compose up`. Todo cambio entra por una rama corta creada desde `main`, con nombre
-  `<tipo>/<tarea>-<slug>` (ej. `feat/2.2-api-catalogo-paginado`, `docs/prd-reglas-de-negocio`),
-  se integra por Pull Request (checklist de autorrevisión: criterio "hecho" de la tarea,
-  sin secretos, docs actualizadas) y se mergea con **squash merge** (salvo el PR de la Instancia A, que usa *merge commit* para conservar un commit por documento); la rama se borra al mergear.
-  Cada tarea del Implementation Plan se mapea a una rama. Detalle completo en [TRD §4](docs/TRD.md).
+- **Flujo de Git: `main` / `dev` / ramas de trabajo** (fijado por el ticket pre-clase del docente; detalle en [TRD §4.1](docs/TRD.md#41-flujo-de-git-main--dev--ramas-de-trabajo)).
+  - `main` solo recibe el merge de `dev` en cada release, con tag anotado `vX.Y.Z`. Nunca commits directos.
+  - `dev` es la rama de integración.
+  - Las ramas de trabajo nacen de `dev` y vuelven a `dev`: `feat/T{N}-descripcion-corta` o `fix/descripcion-corta`.
 - **Convención de commits:** [Conventional Commits](https://www.conventionalcommits.org/) —
   `feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`, `docker:`.
-- **Tags:** `v0.1.0-mvp` al cerrar la Instancia B.
+- **Releases:** SemVer `0.y.z`, registrados en el [CHANGELOG](CHANGELOG.md). `v0.1.0` = scaffold mínimo.
 
 ---
 

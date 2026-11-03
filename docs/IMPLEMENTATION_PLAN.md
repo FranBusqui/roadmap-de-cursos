@@ -73,7 +73,7 @@ flowchart LR
 | **H3** | M3 | el ciclo completo: aportar → en revisión → aprobar/rechazar → aparece en el catálogo |
 | **H4** | M4 | roadmap personal con progreso |
 | **H5 (MVP)** | M5, tareas 5.1 a 5.5 | el checklist de §1.2 en verde |
-| **H6 (release)** | P1 hechas + 5.6 | tag `v0.1.0-mvp` |
+| **H6 (release)** | P1 hechas + 5.6 | release MINOR del MVP en `main` con tag anotado (el siguiente a `v0.1.0`, que es el scaffold) |
 
 ### 2.2 Qué es P1 y cuándo se hace
 
@@ -100,7 +100,7 @@ Se ejecutan **después de la tarea 5.4** (MVP verificado) y antes de 5.6. Cada t
 > **Definición de hecho general (aplica a toda tarea, además de su "hecho cuando…"):**
 > (1) `docker compose up` sigue levantando sin errores · (2) sin secretos, contraseñas ni tokens en el código ni en el log ·
 > (3) respeta las reglas de dependencia entre dominios (TRD §3.1) · (4) el CSS nuevo no usa media queries salvo `min-width: 768px | 1024px` y `prefers-reduced-motion` ·
-> (5) la rama se integra por Pull Request con squash merge y commits convencionales · (6) se actualiza la tabla de §4 con la rama y el estado.
+> (5) la rama nace de `dev` y vuelve a `dev` con `git merge --no-ff`, con commits convencionales (TRD §4.1) · (6) se actualiza la tabla de §4 con la rama y el estado.
 > **Convenciones de los comandos de verificación:** `curl` contra `localhost:8000`; las rutas de API llevan el prefijo `/api/v1`;
 > los métodos no seguros llevan `-H 'Content-Type: application/json' -H 'Origin: http://localhost:5173'` y las rutas con sesión usan un archivo de cookies (`-c cookies.txt` / `-b cookies.txt`).
 > La columna **Refs** liga cada tarea con sus historias (`US`), endpoints (`EP`) y reglas (`BR`).
@@ -109,7 +109,7 @@ Se ejecutan **después de la tarea 5.4** (MVP verificado) y antes de 5.6. Cada t
 
 | # | Tarea | Hecho cuando… | Refs | Est. |
 |---|-------|----------------|------|------|
-| 0.1 | Estructura de carpetas del TRD §3.2, `.env.example`, plantilla de Pull Request y **registro de versiones exactas** | `git ls-files` muestra el árbol del TRD §3.2 (carpetas vacías con `.gitkeep`); `.env.example` lista todas las variables del TRD §4.4 y `git check-ignore .env` imprime `.env`; existe `.github/pull_request_template.md`; las salidas de `pnpm -v`, `uv --version`, `node -v`, `docker --version` y `docker compose version` están escritas con su número exacto en SPEC §6 y TRD §1 (FastAPI 0.158.2, PostgreSQL 18.6, React 19.x) | RNF-007 · TD-012, TD-013 | 1 h |
+| 0.1 | Estructura de carpetas del TRD §3.2, `.env.example`, rama `dev` + `CHANGELOG.md` y **registro de versiones exactas** | `git ls-files` muestra el árbol del TRD §3.2 (carpetas vacías con `.gitkeep`); `.env.example` lista todas las variables del TRD §4.4 y `git check-ignore .env` imprime `.env`; existen la rama `dev` (local y remota) y `CHANGELOG.md` con `[Unreleased]`; las salidas de `pnpm -v`, `uv --version`, `node -v`, `docker --version` y `docker compose version` están escritas con su número exacto en SPEC §6 y TRD §1 (FastAPI 0.158.2, PostgreSQL 18.6, React 19.x) | RNF-007 · TD-012, TD-013 | 1 h |
 | 0.2 | `docker-compose.yml` con `postgres:18.6` y `mailpit` | `docker compose up postgres mailpit` deja ambos servicios `healthy`; `docker compose exec postgres psql -U $POSTGRES_USER -d $POSTGRES_DB -c "select version()"` muestra `PostgreSQL 18.6`; `http://localhost:8025` abre la bandeja de Mailpit; tras `docker compose down` y `up` el volumen `pgdata` conserva los datos | RNF-008 | 1 h |
 | 0.3 | Backend FastAPI mínimo: `config.py`, `main.py`, `compartido/db.py`, `errores.py` (envelope), `logging.py` (`request_id`), `GET /health` y Dockerfile | `curl -i localhost:8000/health` → 200 `{"status":"ok","db":"ok"}` con header `X-Request-ID`; con `postgres` detenido → 503 `{"status":"degraded","db":"error"}`; `curl -i localhost:8000/api/v1/inexistente` → 404 con `{"error":{"code":"no_encontrado",…,"request_id":…}}`; el log es una línea JSON por request y no contiene cookies ni cuerpos; `/docs` solo responde con `APP_ENV=dev` | EP-23 · TD-003, RNF-012 | 2 h |
 | 0.4 | Frontend Vite + React 19: `tokens.css` (UX-UI §2.4), reset, Roboto self-host, router con **todas las rutas del APPFlow §2** (placeholders), `Header` con **menú sándwich** (UX-UI §4.5), toasts, `shared/api/cliente.js` con `ApiError`, pantallas 404 y 403, `lang="es-AR"`, Dockerfile | `docker compose up` muestra el shell en `localhost:5173`; a 360 px la hamburguesa abre y cierra el panel con X, `ESC`, clic en el overlay y clic en un enlace, con `aria-expanded`/`aria-controls` y el foco devuelto al botón; a ≥ 768 px desaparece la hamburguesa y aparece la nav horizontal; `curl -i localhost:5173/api/v1/inexistente` devuelve el 404 con envelope del backend (prueba del proxy de Vite); cada ruta del APPFlow §2 abre su placeholder y una ruta desconocida muestra el 404; `grep -rn "@media" frontend/src \| grep -v "min-width" \| grep -v "prefers-reduced-motion"` no devuelve nada | US-015 · RNF-002, 004, 010, 013 | 3 h |
@@ -174,8 +174,8 @@ Se ejecutan **después de la tarea 5.4** (MVP verificado) y antes de 5.6. Cada t
 | 5.2 | Auditorías estáticas: **mobile-first** y **Screaming Architecture** | `grep -rn "@media" frontend/src \| grep -v "min-width" \| grep -v "prefers-reduced-motion"` no devuelve nada y todo `min-width` es `768px` o `1024px`; a 360, 768 y 1280 px (y reflow a 320 px) ninguna pantalla del APPFlow §2 tiene scroll horizontal; hamburguesa, paginador y radios miden ≥ 44 px; `grep -rn "from app\.\(identidad\|categorias\|catalogo\|aportes\|roadmap\)\.repository" backend/app` muestra imports solo dentro del propio dominio; no hay carpetas `components/` ni `pages/` globales fuera de `shared/` | RNF-002, 007 · TD-012 | 2 h |
 | 5.3 | Estados globales de la UI (APPFlow §5) | cada listado y detalle muestra `loading`, `ok`, `empty` y `error` con "Reintentar" (verificado con el backend detenido y con la BD vacía); aparece el banner "Sin conexión"; una 401 en una request protegida muestra "Tu sesión expiró. Ingresá de nuevo." y redirige a `/login?volver=…`; el *error boundary* captura un error de render forzado; un 500 muestra el `request_id` | RNF-009 · APPFlow §5 | 2,5 h |
 | 5.4 | **Recorrido end-to-end del MVP** en una carpeta limpia | `git clone` + `cp .env.example .env` + `docker compose up --build` sin cachés; los 12 recorridos de §1.1 y el checklist de §1.2 se completan en orden, sin errores en la consola del navegador ni 5xx en el log del backend | O7 · RNF-008 · US-001..011, 015 | 2 h |
-| 5.5 | Rendimiento del catálogo | con `seed_demo --cursos 1000`, 50 requests a `GET /api/v1/cursos?q=python` dan p95 < 500 ms (`hey` o un script) y `EXPLAIN ANALYZE` queda anotado en la descripción del PR; el LCP del catálogo es < 2,5 s en Lighthouse con 4G simulado | RNF-003 · TD-007 | 1,5 h |
-| 5.6 | Cierre documental y release | SPEC §6 y TRD §1 tienen las versiones reales; el README tiene el estado actualizado y la lista de P1 no construidas (si las hay); la tabla §4 de este plan está completa; SPEC §9 registra el cierre; `git tag -n v0.1.0-mvp` muestra un tag anotado sobre `main` y `main` levanta con `docker compose up` | RNF-007, 008 · TD-013 | 1,5 h |
+| 5.5 | Rendimiento del catálogo | con `seed_demo --cursos 1000`, 50 requests a `GET /api/v1/cursos?q=python` dan p95 < 500 ms (`hey` o un script) y `EXPLAIN ANALYZE` queda anotado en el cuerpo del commit de merge; el LCP del catálogo es < 2,5 s en Lighthouse con 4G simulado | RNF-003 · TD-007 | 1,5 h |
+| 5.6 | Cierre documental y release | SPEC §6 y TRD §1 tienen las versiones reales; el README tiene el estado actualizado y la lista de P1 no construidas (si las hay); la tabla §4 de este plan está completa; SPEC §9 registra el cierre; el CHANGELOG tiene la entrada del release; `git tag -n` muestra el tag anotado del MVP sobre `main` y `main` levanta con `docker compose up` | RNF-007, 008 · TD-013 | 1,5 h |
 
 ### 3.1 Trazabilidad: historias → tareas
 
@@ -256,54 +256,72 @@ Se ejecutan **después de la tarea 5.4** (MVP verificado) y antes de 5.6. Cada t
 
 ## 4. Ejecución (Instancia B)
 
-> **Regla:** 1 tarea (o lote coherente) = 1 rama `<tipo>/<tarea>-<slug>` desde `main` (TRD §4.1) + commits convencionales con
-> `Refs: US-xxx` + Pull Request con squash merge. **Actualizo esta tabla al mergear cada PR:** estado `[x]` y el hash del commit de squash.
+> **Regla:** 1 ticket o tarea (o lote coherente) = 1 rama `feat/T{N}-descripcion-corta` (o `fix/descripcion-corta`) desde `dev` (TRD §4.1),
+> con commits convencionales y `Refs: US-xxx`, que vuelve a `dev` con `git merge --no-ff`. `main` solo recibe `dev` en cada release.
+> **Actualizo estas tablas al mergear cada rama:** estado `[x]` y el hash del commit de merge en `dev`.
 > Las ramas ya están nombradas; los commits se completan durante la ejecución.
+
+### 4.1 Tickets del docente
+
+> Los tickets del docente se ejecutan con su propia numeración y se mapean a las tareas del plan que cubren.
+> Si un ticket cubre una tarea solo en parte, el resto de esa tarea queda en la tabla 4.2 con su propia rama.
+
+| Ticket | Qué entrega | Tareas del plan | Estado | Rama / Commit |
+|--------|-------------|-----------------|--------|---------------|
+| Pre-clase T1 | workflow `main`/`dev`, CHANGELOG, estructura de carpetas y `.env.example` | 0.1 (sin el registro de versiones, que va en T5) | [x] | `feat/T1-scaffold-estructura` · merge `ca4362f` |
+| Pre-clase T2 | FastAPI + uv con `GET /health` y `GET /api/v1/cursos` (página vacía) | 0.3 (parcial: falta el envelope de errores, el logging y `db` en `/health`) | [x] | `feat/T2-backend-minimo` · merge `24b7086` |
+| Pre-clase T3 | React + Vite + pnpm: pantalla de cursos con estados loading/error/vacío y proxy `/api` | 0.4 (parcial: falta el shell, los tokens y el menú sándwich) | [x] | `feat/T3-frontend-minimo` · merge `fd80aa2` |
+| Pre-clase T4 | compose de 3 servicios (sin Mailpit ni healthchecks) y Dockerfiles simples | 0.2 (Mailpit pasa a la tarea 1.4) | [x] | `feat/T4-docker-compose-dev` · merge `544602e` |
+| Pre-clase T5 | release `v0.1.0` en `main` + versiones exactas en SPEC §6 y TRD §1 | 0.1 (registro de versiones) | [x] | release sobre `main` · tag `v0.1.0` |
+
+> Con T1–T5, las tareas **0.1** y **0.2** quedan completas (salvo Mailpit, movido a 1.4). Las tareas **0.3** y **0.4** quedan parciales y siguen en la tabla 4.2 con su rama.
+
+### 4.2 Tareas del plan
 
 | # | Tarea | Módulo | Prio | Estado | Rama / Commit |
 |---|-------|--------|------|--------|---------------|
-| 0.1 | Estructura de carpetas, `.env.example`, PR template y versiones | M0 | P0 | [ ] | `chore/0.1-estructura-carpetas` |
-| 0.2 | docker-compose con postgres 18.6 y mailpit | M0 | P0 | [ ] | `docker/0.2-compose-postgres-mailpit` |
-| 0.3 | Backend mínimo: errores, logging y `/health` | M0 | P0 | [ ] | `feat/0.3-backend-health` |
-| 0.4 | Frontend: shell, rutas, tokens y menú sándwich | M0 | P0 | [ ] | `feat/0.4-frontend-shell` |
-| 0.5 | Alembic + migración `unaccent` + arranque integrado | M0 | P0 | [ ] | `chore/0.5-alembic-unaccent` |
-| 1.1 | Modelos y migración de identidad | M1 | P0 | [ ] | `feat/1.1-modelos-identidad` |
-| 1.2 | Seguridad: argon2id, sesión, cookie, CSRF y rate limit base | M1 | P0 | [ ] | `feat/1.2-seguridad-sesion` |
-| 1.3 | Registro, login, logout y `me` | M1 | P0 | [ ] | `feat/1.3-auth-registro-login` |
-| 1.4 | Recuperación y restablecimiento de contraseña | M1 | P0 | [ ] | `feat/1.4-recuperacion-password` |
-| 1.5 | Rol validador: dependencia, CLI y seed | M1 | P0 | [ ] | `feat/1.5-rol-validador-cli` |
-| 1.6 | UI: sesión, guardas, Login y Registro | M1 | P0 | [ ] | `feat/1.6-ui-login-registro` |
-| 1.7 | UI: Recuperar y Restablecer | M1 | P0 | [ ] | `feat/1.7-ui-recuperacion` |
-| 2.1 | Modelos de curso y categoría, migración y seeds | M2 | P0 | [ ] | `feat/2.1-modelo-cursos-seed` |
-| 2.2 | Paginación compartida y `GET /categorias` | M2 | P0 | [ ] | `feat/2.2-api-categorias-paginacion` |
-| 2.3 | `GET /cursos` y `GET /cursos/{id}` | M2 | P0 | [ ] | `feat/2.3-api-catalogo` |
-| 2.4 | Filtros por atributos (API) | M2 | P1 | [ ] | `feat/2.4-api-filtros-atributos` |
-| 2.5 | Componentes compartidos de listado | M2 | P0 | [ ] | `feat/2.5-ui-componentes-listado` |
-| 2.6 | UI: Catálogo | M2 | P0 | [ ] | `feat/2.6-ui-catalogo` |
-| 2.7 | UI: Detalle de curso y Home | M2 | P0 | [ ] | `feat/2.7-ui-detalle-home` |
-| 2.8 | UI: filtros por atributos | M2 | P1 | [ ] | `feat/2.8-ui-filtros-atributos` |
-| 3.1 | Modelo de validaciones, migración y normalización de URL | M3 | P0 | [ ] | `feat/3.1-modelo-validaciones-url` |
-| 3.2 | `POST /aportes` | M3 | P0 | [ ] | `feat/3.2-api-crear-aporte` |
-| 3.3 | Mis aportes (API) | M3 | P0 | [ ] | `feat/3.3-api-mis-aportes` |
-| 3.4 | API de validación (cola, aprobar, rechazar) | M3 | P0 | [ ] | `feat/3.4-api-validacion` |
-| 3.5 | Borrador, edición y reenvío (API) | M3 | P1 | [ ] | `feat/3.5-api-borrador-reenvio` |
-| 3.6 | UI: Aportar curso | M3 | P0 | [ ] | `feat/3.6-ui-aportar` |
-| 3.7 | UI: Mis aportes y detalle | M3 | P0 | [ ] | `feat/3.7-ui-mis-aportes` |
-| 3.8 | UI: Cola y Revisión | M3 | P0 | [ ] | `feat/3.8-ui-validacion` |
-| 3.9 | UI: borrador, editar y reenviar | M3 | P1 | [ ] | `feat/3.9-ui-editar-aporte` |
-| 4.1 | Modelo y migración del roadmap | M4 | P0 | [ ] | `feat/4.1-modelo-roadmap` |
-| 4.2 | Agregar al roadmap y marca `en_mi_roadmap` | M4 | P0 | [ ] | `feat/4.2-api-agregar-roadmap` |
-| 4.3 | Listar, cambiar progreso y quitar (API) | M4 | P0 | [ ] | `feat/4.3-api-roadmap-progreso` |
-| 4.4 | Reordenar el roadmap (API) | M4 | P1 | [ ] | `feat/4.4-api-reordenar-roadmap` |
-| 4.5 | UI: Agregar a mi roadmap | M4 | P0 | [ ] | `feat/4.5-ui-agregar-roadmap` |
-| 4.6 | UI: Mi roadmap | M4 | P0 | [ ] | `feat/4.6-ui-roadmap` |
-| 4.7 | UI: Subir y bajar | M4 | P1 | [ ] | `feat/4.7-ui-reordenar-roadmap` |
-| 5.1 | Auditoría de accesibilidad y contrastes | M5 | P0 | [ ] | `chore/5.1-accesibilidad` |
-| 5.2 | Auditorías estáticas: mobile-first y Screaming | M5 | P0 | [ ] | `chore/5.2-auditorias-estaticas` |
-| 5.3 | Estados globales de la UI | M5 | P0 | [ ] | `fix/5.3-estados-globales-ui` |
-| 5.4 | Recorrido end-to-end del MVP | M5 | P0 | [ ] | `chore/5.4-recorrido-mvp` |
-| 5.5 | Rendimiento del catálogo | M5 | P0 | [ ] | `chore/5.5-rendimiento-catalogo` |
-| 5.6 | Cierre documental y tag `v0.1.0-mvp` | M5 | P0 | [ ] | `docs/5.6-cierre-y-release` |
+| 0.1 | Estructura de carpetas, `.env.example`, `dev` + CHANGELOG y versiones | M0 | P0 | [x] | cubierta por pre-clase T1 y T5 (§4.1) |
+| 0.2 | docker-compose con postgres 18.6 y mailpit | M0 | P0 | [x] | cubierta por pre-clase T4 (§4.1); Mailpit pasa a 1.4 |
+| 0.3 | Backend mínimo: errores, logging y `/health` | M0 | P0 | [ ] | `feat/T0.3-backend-health` |
+| 0.4 | Frontend: shell, rutas, tokens y menú sándwich | M0 | P0 | [ ] | `feat/T0.4-frontend-shell` |
+| 0.5 | Alembic + migración `unaccent` + arranque integrado | M0 | P0 | [ ] | `feat/T0.5-alembic-unaccent` |
+| 1.1 | Modelos y migración de identidad | M1 | P0 | [ ] | `feat/T1.1-modelos-identidad` |
+| 1.2 | Seguridad: argon2id, sesión, cookie, CSRF y rate limit base | M1 | P0 | [ ] | `feat/T1.2-seguridad-sesion` |
+| 1.3 | Registro, login, logout y `me` | M1 | P0 | [ ] | `feat/T1.3-auth-registro-login` |
+| 1.4 | Recuperación y restablecimiento de contraseña | M1 | P0 | [ ] | `feat/T1.4-recuperacion-password` |
+| 1.5 | Rol validador: dependencia, CLI y seed | M1 | P0 | [ ] | `feat/T1.5-rol-validador-cli` |
+| 1.6 | UI: sesión, guardas, Login y Registro | M1 | P0 | [ ] | `feat/T1.6-ui-login-registro` |
+| 1.7 | UI: Recuperar y Restablecer | M1 | P0 | [ ] | `feat/T1.7-ui-recuperacion` |
+| 2.1 | Modelos de curso y categoría, migración y seeds | M2 | P0 | [ ] | `feat/T2.1-modelo-cursos-seed` |
+| 2.2 | Paginación compartida y `GET /categorias` | M2 | P0 | [ ] | `feat/T2.2-api-categorias-paginacion` |
+| 2.3 | `GET /cursos` y `GET /cursos/{id}` | M2 | P0 | [ ] | `feat/T2.3-api-catalogo` |
+| 2.4 | Filtros por atributos (API) | M2 | P1 | [ ] | `feat/T2.4-api-filtros-atributos` |
+| 2.5 | Componentes compartidos de listado | M2 | P0 | [ ] | `feat/T2.5-ui-componentes-listado` |
+| 2.6 | UI: Catálogo | M2 | P0 | [ ] | `feat/T2.6-ui-catalogo` |
+| 2.7 | UI: Detalle de curso y Home | M2 | P0 | [ ] | `feat/T2.7-ui-detalle-home` |
+| 2.8 | UI: filtros por atributos | M2 | P1 | [ ] | `feat/T2.8-ui-filtros-atributos` |
+| 3.1 | Modelo de validaciones, migración y normalización de URL | M3 | P0 | [ ] | `feat/T3.1-modelo-validaciones-url` |
+| 3.2 | `POST /aportes` | M3 | P0 | [ ] | `feat/T3.2-api-crear-aporte` |
+| 3.3 | Mis aportes (API) | M3 | P0 | [ ] | `feat/T3.3-api-mis-aportes` |
+| 3.4 | API de validación (cola, aprobar, rechazar) | M3 | P0 | [ ] | `feat/T3.4-api-validacion` |
+| 3.5 | Borrador, edición y reenvío (API) | M3 | P1 | [ ] | `feat/T3.5-api-borrador-reenvio` |
+| 3.6 | UI: Aportar curso | M3 | P0 | [ ] | `feat/T3.6-ui-aportar` |
+| 3.7 | UI: Mis aportes y detalle | M3 | P0 | [ ] | `feat/T3.7-ui-mis-aportes` |
+| 3.8 | UI: Cola y Revisión | M3 | P0 | [ ] | `feat/T3.8-ui-validacion` |
+| 3.9 | UI: borrador, editar y reenviar | M3 | P1 | [ ] | `feat/T3.9-ui-editar-aporte` |
+| 4.1 | Modelo y migración del roadmap | M4 | P0 | [ ] | `feat/T4.1-modelo-roadmap` |
+| 4.2 | Agregar al roadmap y marca `en_mi_roadmap` | M4 | P0 | [ ] | `feat/T4.2-api-agregar-roadmap` |
+| 4.3 | Listar, cambiar progreso y quitar (API) | M4 | P0 | [ ] | `feat/T4.3-api-roadmap-progreso` |
+| 4.4 | Reordenar el roadmap (API) | M4 | P1 | [ ] | `feat/T4.4-api-reordenar-roadmap` |
+| 4.5 | UI: Agregar a mi roadmap | M4 | P0 | [ ] | `feat/T4.5-ui-agregar-roadmap` |
+| 4.6 | UI: Mi roadmap | M4 | P0 | [ ] | `feat/T4.6-ui-roadmap` |
+| 4.7 | UI: Subir y bajar | M4 | P1 | [ ] | `feat/T4.7-ui-reordenar-roadmap` |
+| 5.1 | Auditoría de accesibilidad y contrastes | M5 | P0 | [ ] | `feat/T5.1-accesibilidad` |
+| 5.2 | Auditorías estáticas: mobile-first y Screaming | M5 | P0 | [ ] | `feat/T5.2-auditorias-estaticas` |
+| 5.3 | Estados globales de la UI | M5 | P0 | [ ] | `feat/T5.3-estados-globales-ui` |
+| 5.4 | Recorrido end-to-end del MVP | M5 | P0 | [ ] | `feat/T5.4-recorrido-mvp` |
+| 5.5 | Rendimiento del catálogo | M5 | P0 | [ ] | `feat/T5.5-rendimiento-catalogo` |
+| 5.6 | Cierre documental y release del MVP | M5 | P0 | [ ] | `feat/T5.6-cierre-y-release` |
 
 ## 5. Estrategia de testing
 
@@ -334,7 +352,7 @@ Se ejecutan **después de la tarea 5.4** (MVP verificado) y antes de 5.6. Cada t
 | BR-005 / BR-006 | el roadmap ajeno es invisible (404); sin duplicados; `orden` contiguo tras agregar, mover y quitar |
 | Concurrencia | dos `aprobar` simultáneos → un 200 y un 409; dos envíos simultáneos de la misma URL → un 201 y un 409 |
 
-**Objetivo de cobertura:** **≥ 85 %** de líneas en `service.py` y **≥ 70 %** en el resto del backend (`router.py` y `repository.py`). En el frontend, cobertura de los hooks y esquemas listados (sin objetivo numérico). Los porcentajes se informan en el PR del 27/10; la integración continua (GitHub Actions: lint + tests en cada PR) se configura ese mismo día.
+**Objetivo de cobertura:** **≥ 85 %** de líneas en `service.py` y **≥ 70 %** en el resto del backend (`router.py` y `repository.py`). En el frontend, cobertura de los hooks y esquemas listados (sin objetivo numérico). Los porcentajes se informan en el CHANGELOG del release de la clase del 27/10; la integración continua (GitHub Actions: lint + tests en cada push a `dev` y `main`) se configura ese mismo día.
 
 ## 6. Riesgos del plan
 
@@ -345,11 +363,11 @@ Se ejecutan **después de la tarea 5.4** (MVP verificado) y antes de 5.6. Cada t
 | R-03 | La sesión por cookie y el CSRF por `Origin` fallan en desarrollo por la combinación Vite ↔ Docker ↔ proxy (cookies `Secure`, `Origin` distinto) | medio | tarea 1.2 con prueba explícita de `Origin` ajeno y propio; `COOKIE_SECURE=false` y un solo origen (`localhost:5173`) vía el proxy de Vite; probar el login desde el navegador en cuanto exista 1.6 |
 | R-04 | Las condiciones de carrera (doble aprobación, URL duplicada simultánea, reordenamiento) pasan inadvertidas porque no hay tests hasta el 27/10 | medio | los criterios de 3.2, 3.4 y 4.4 incluyen pruebas con requests simultáneos; la BD es la red de seguridad (índice único parcial, `UPDATE … WHERE estado = …`, bloqueo del usuario) |
 | R-05 | El mail de recuperación no llega o el enlace se rompe (SMTP, `FRONTEND_BASE_URL`) | alto | Mailpit en el Compose desde 0.2; el criterio de 1.4 incluye abrir el enlace real de Mailpit y 1.7 repite el flujo en el navegador |
-| R-06 | Deriva entre documentos al cambiar algo durante la Instancia B (APPFlow, BackendSchema y Plan quedan desalineados) | alto | el cambio de un endpoint o de una pantalla se hace primero en el documento y recién después en el código, en el mismo PR; las tablas de §3.1 a §3.4 de este plan sirven como lista de revisión; la tarea 5.6 repite la revisión cruzada antes del tag |
+| R-06 | Deriva entre documentos al cambiar algo durante la Instancia B (APPFlow, BackendSchema y Plan quedan desalineados) | alto | el cambio de un endpoint o de una pantalla se hace primero en el documento y recién después en el código, en la misma rama; las tablas de §3.1 a §3.4 de este plan sirven como lista de revisión; la tarea 5.6 repite la revisión cruzada antes del tag |
 | R-07 | La búsqueda con `unaccent` + `ILIKE` se degrada con más cursos de los previstos (hoy un *scan* secuencial) | bajo | la tarea 5.5 mide con 1.000 cursos; si no cumple, función envoltorio inmutable e índice `pg_trgm` (TRD TD-007) |
 | R-08 | Dependencias nativas (`argon2-cffi`, `psycopg`) o permisos de volumen de PostgreSQL 18 fallan en Docker de algunas máquinas | medio | usar `psycopg[binary]` y *wheels* de `argon2-cffi`; en 0.2 verificar el volumen en `/var/lib/postgresql` (cambio de PostgreSQL 18) y que `down -v` + `up` funcione desde cero |
 | R-09 | Roboto, Material Symbols y la reverificación de contrastes consumen más tiempo del previsto | bajo | solo los ~25 iconos usados como SVG inline y Roboto self-host de 3 pesos (UX-UI §7); la reverificación se hace una sola vez en 5.1 |
-| R-10 | Hay un único revisor de los PR (el propio desarrollador) y se cuelan errores | medio | checklist obligatoria en la plantilla de PR (criterio "hecho", sin secretos, `docker compose up` verificado, docs al día) y revisión docente sobre el PR y el tag de entrega |
+| R-10 | Hay un único revisor de cada merge (el propio desarrollador) y se cuelan errores | medio | autorrevisión obligatoria antes de cada merge a `dev` (TRD §4.1: criterio "hecho", sin secretos, `docker compose up` verificado, docs al día) y revisión docente sobre el historial y los tags de release |
 
 ---
 
