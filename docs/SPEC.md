@@ -161,3 +161,5 @@ validación humana y la experiencia declarada de quienes ya tomaron cada curso.
 | 23/10/2026 | Se agrega §8 con 22 vacíos resueltos (validación, roles, roadmap, búsqueda, duplicados, seguridad de cuenta, paginación y otros) | la SPEC los dejaba abiertos a propósito |
 | 23/10/2026 | Se adopta FastAPI `0.158.2` (no `0.143.3`) y Node 24 LTS; se incorpora Mailpit como herramienta de dev | la SPEC oficial prevalece; Node 20 está fuera de soporte; el flujo de recuperación necesita un buzón local |
 | 23/10/2026 | Se fija argon2id en lugar de bcrypt como algoritmo de hash | supera el mínimo exigido; justificación en TRD §2 |
+| 02/11/2026 | Inicio de la Instancia B. La Instancia A, enviada el 23/10, no recibió devolución; el docente envió los tickets de desarrollo, que se toman como habilitación para avanzar | los tickets pre-clase y de clase presuponen el desarrollo en curso |
+| 02/11/2026 | El flujo de Git pasa de GitHub Flow a `main` / `dev` / `feat/T{N}-…` con CHANGELOG y SemVer; el scaffold sale como `v0.1.0` | el ticket pre-clase lo fija como obligatorio; TRD TD-013 y §4.1 |
