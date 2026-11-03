@@ -11,25 +11,27 @@
 
 > Las versiones fijadas por la SPEC (FastAPI 0.158.2, PostgreSQL 18.6, React 19.x) están acá y en
 > [SPEC §6](SPEC.md#6-stack-registrado-versiones-exactas-con-las-que-se-va-a-desarrollar).
-> Las marcadas "lockfile" se escriben con número exacto en la tarea 0.1 del plan (Instancia B) a
-> partir de lo que realmente quede instalado (`pnpm-lock.yaml`, `uv.lock`), y se vuelcan a la SPEC §6.
+> Los números en negrita son las versiones realmente instaladas en el release `v0.1.0` (03/11/2026).
+> Las marcadas "lockfile" son dependencias que todavía no se instalaron: su versión exacta queda en
+> `pnpm-lock.yaml` / `uv.lock` cuando entran, y se vuelca acá y en la SPEC §6.
 
 | Capa | Elección | Versión exacta | Por qué |
 |------|----------|----------------|---------|
-| Frontend | React + Vite + pnpm | React **19.x** · Vite y pnpm: lockfile | fijado por SPEC |
+| Frontend | React + Vite + pnpm | React **19.3.1** · Vite **8.3.5** · pnpm **12.16.1** | fijado por SPEC |
+| Frontend — lint | oxlint | **1.90.0** | viene con la plantilla actual de `create-vite`; mucho más rápido que ESLint y alcanza para las reglas de hooks de React |
 | Frontend — rutas | React Router (router de datos, `createBrowserRouter`) | lockfile | rutas anidadas, guardas de acceso, `loader`-free (los datos van por TanStack Query) |
 | Frontend — estado de servidor | TanStack Query | lockfile | caché, reintentos y paginación con `placeholderData: keepPreviousData` (sin parpadeo al cambiar de página) |
 | Frontend — formularios | React Hook Form + Zod | lockfile | un único esquema de validación por formulario, compartido por todos los campos del aporte (12+ campos) |
 | Frontend — estilos | CSS Modules + tokens CSS (custom properties) | — | control total del mobile-first y auditoría simple de media queries (ver TD-010) |
 | Frontend — tests | Vitest + Testing Library | lockfile | integrado con Vite |
-| Backend | FastAPI + uv | FastAPI **0.158.2** · Python **3.13** · uv: lockfile | fijado por SPEC |
-| Backend — validación | Pydantic v2 (viene con FastAPI) | lockfile | schemas de request/response tipados |
+| Backend | FastAPI + uv | FastAPI **0.158.2** · uvicorn **0.54.0** · Python **3.13.18** · uv **0.13.6** | fijado por SPEC |
+| Backend — validación | Pydantic v2 (viene con FastAPI) | **2.14.2** | schemas de request/response tipados |
 | ORM / driver | SQLAlchemy 2.0 (síncrono, estilo declarativo tipado) + psycopg 3 + Alembic | lockfile | ver TD-008 |
 | Hash de contraseñas | argon2-cffi (argon2id) | lockfile | ver TD-005 |
 | Correo (dev) | `smtplib` de la stdlib + `BackgroundTasks` → Mailpit | — | un único correo transaccional (recuperación) |
 | Backend — tests y calidad | pytest + httpx · Ruff (lint y formato) | lockfile | |
 | BD | PostgreSQL | **18.6** + extensión `unaccent` | fijado por SPEC |
-| Infra (dev) | Docker + Compose · Node 24 LTS (imagen del frontend) · Mailpit | lockfile / tag fijado en compose | SPEC §6 |
+| Infra (dev) | Docker + Compose · Node 24 LTS (imagen del frontend) · Mailpit | Docker **29.9.2** · Compose **5.6.1** · `node:24-alpine` (24.22.2) · Mailpit: tag fijado en compose (tarea 1.4) | SPEC §6 |
 
 ## 2. Decisiones técnicas
 
