@@ -282,7 +282,7 @@ Se ejecutan **después de la tarea 5.4** (MVP verificado) y antes de 5.6. Cada t
 |---|-------|--------|------|--------|---------------|
 | 0.1 | Estructura de carpetas, `.env.example`, `dev` + CHANGELOG y versiones | M0 | P0 | [x] | cubierta por pre-clase T1 y T5 (§4.1) |
 | 0.2 | docker-compose con postgres 18.6 y mailpit | M0 | P0 | [x] | cubierta por pre-clase T4 (§4.1); Mailpit pasa a 1.4 |
-| 0.3 | Backend mínimo: errores, logging y `/health` | M0 | P0 | [ ] | `feat/T0.3-backend-health` |
+| 0.3 | Backend mínimo: errores, logging y `/health` | M0 | P0 | [x] | `feat/T0.3-backend-health` |
 | 0.4 | Frontend: shell, rutas, tokens y menú sándwich | M0 | P0 | [ ] | `feat/T0.4-frontend-shell` |
 | 0.5 | Alembic + migración `unaccent` + arranque integrado | M0 | P0 | [ ] | `feat/T0.5-alembic-unaccent` |
 | 1.1 | Modelos y migración de identidad | M1 | P0 | [ ] | `feat/T1.1-modelos-identidad` |
