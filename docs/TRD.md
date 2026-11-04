@@ -11,7 +11,8 @@
 
 > Las versiones fijadas por la SPEC (FastAPI 0.158.2, PostgreSQL 18.6, React 19.x) están acá y en
 > [SPEC §6](SPEC.md#6-stack-registrado-versiones-exactas-con-las-que-se-va-a-desarrollar).
-> Los números en negrita son las versiones realmente instaladas en el release `v0.1.0` (03/11/2026).
+> Los números en negrita son las versiones realmente instaladas: las del release `v0.1.0` (03/11/2026)
+> y las que se suman después, con la tarea del plan que las trajo.
 > Las marcadas "lockfile" son dependencias que todavía no se instalaron: su versión exacta queda en
 > `pnpm-lock.yaml` / `uv.lock` cuando entran, y se vuelca acá y en la SPEC §6.
 
@@ -26,10 +27,11 @@
 | Frontend — tests | Vitest + Testing Library | lockfile | integrado con Vite |
 | Backend | FastAPI + uv | FastAPI **0.158.2** · uvicorn **0.54.0** · Python **3.13.18** · uv **0.13.6** | fijado por SPEC |
 | Backend — validación | Pydantic v2 (viene con FastAPI) | **2.14.2** | schemas de request/response tipados |
-| ORM / driver | SQLAlchemy 2.0 (síncrono, estilo declarativo tipado) + psycopg 3 + Alembic | lockfile | ver TD-008 |
+| Backend — configuración | pydantic-settings | **2.16.2** (tarea 0.3) | lee y valida las variables del §4.4 al arrancar: si falta una obligatoria, el backend no levanta |
+| ORM / driver | SQLAlchemy 2.1 (síncrono, estilo declarativo tipado) + psycopg 3 + Alembic | SQLAlchemy **2.1.7** · psycopg **3.3.7** (tarea 0.3) · Alembic: lockfile | ver TD-008 |
 | Hash de contraseñas | argon2-cffi (argon2id) | lockfile | ver TD-005 |
 | Correo (dev) | `smtplib` de la stdlib + `BackgroundTasks` → Mailpit | — | un único correo transaccional (recuperación) |
-| Backend — tests y calidad | pytest + httpx · Ruff (lint y formato) | lockfile | |
+| Backend — tests y calidad | pytest + httpx2 · Ruff (lint y formato) | pytest **9.2.0** · httpx2 **2.16.0** (tarea 0.3) · Ruff: lockfile | `httpx2` porque Starlette marcó como deprecado usar `httpx` en su `TestClient` |
 | BD | PostgreSQL | **18.6** + extensión `unaccent` | fijado por SPEC |
 | Infra (dev) | Docker + Compose · Node 24 LTS (imagen del frontend) · Mailpit | Docker **29.9.2** · Compose **5.6.1** · `node:24-alpine` (24.22.2) · Mailpit: tag fijado en compose (tarea 1.4) | SPEC §6 |
 
@@ -124,6 +126,7 @@ nuevo puede correr el listado un lugar).
 | 403 | `aporte_propio` | Un validador intenta resolver su propio aporte (BR-007) |
 | 403 | `origen_no_permitido` | Método no seguro con `Origin` fuera de la lista permitida (§2.4) |
 | 404 | `no_encontrado` | El recurso no existe **o** no es visible para quien consulta (BR-016) |
+| 405 | `metodo_no_permitido` | La ruta existe pero no acepta ese método (lo genera el ruteo de FastAPI) |
 | 409 | `email_duplicado` | Registro con un email ya existente |
 | 409 | `url_duplicada` | La URL normalizada ya está en un curso activo (BR-004) |
 | 409 | `ya_en_roadmap` | El curso ya está en el roadmap del usuario (BR-006) |

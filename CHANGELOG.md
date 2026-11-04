@@ -9,6 +9,18 @@ Solo `main` recibe versiones: cada release es un merge de `dev` con su tag anota
 
 ## [Unreleased]
 
+### Added
+
+- Configuración del backend con `pydantic-settings` y conexión a PostgreSQL con SQLAlchemy 2.1 + psycopg 3 (tarea 0.3).
+- Envelope de errores del TRD §2.2 para 404, 405, 422 y 500, con el código nuevo `metodo_no_permitido` (tarea 0.3).
+- Log JSON de una línea por request y header `X-Request-ID` en todas las respuestas (tarea 0.3).
+- Primeros tests del backend (pytest) sobre el envelope de errores (tarea 0.3).
+
+### Changed
+
+- `GET /health` informa el estado de la base: `{"status":"ok","db":"ok"}` o `503 degraded` si PostgreSQL no responde (tarea 0.3).
+- `/docs` y `/openapi.json` solo se sirven con `APP_ENV=dev` (tarea 0.3).
+
 ## [v0.1.0] - 2026-11-03
 
 Scaffold mínimo del proyecto (tickets pre-clase T1–T5).
